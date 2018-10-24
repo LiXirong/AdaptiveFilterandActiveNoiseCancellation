@@ -6,7 +6,7 @@
 %  2018.10.15
 % ------------------------------------------------------------------------
 %
-% demo1.m - adaptive filter algorithm demo（自适应滤波算法应用demo）
+% demo1.m - adaptive filter demo（自适应滤波算法应用demo）
 % Including LMS、NLMS、RLS algorithm
 % Including：
 %     1、echo cancellation 音频回声消除
