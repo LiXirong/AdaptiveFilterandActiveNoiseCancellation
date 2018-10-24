@@ -1,0 +1,17 @@
+# AdaptiveFilterandANC-matlab
+Adaptive Filter and Active Noise Control —— LMS、NLMS、RLS
+## Including:
+1. myLMS.m, myNLMS.m, myRLS.m -- LMS, NLMS, RLS algorithm.
+2. demo1.m -- Adaptive filter demo.
+3. demo2.m -- ANC demo.
+4. demo3.m -- Algorithm performance comparison.
+4. handel.wav, handel_echo.wav -- Source audio and echo audio.
+
+# 自适应滤波器和主动噪声控制-matlab
+自适应滤波器和主动噪声控制——LMS、NLMS、RLS
+## 包括：
+1. myLMS.m, myNLMS.m, myRLS.m -- LMS, NLMS, RLS算法.
+2. demo1.m -- 自适应滤波器demo.
+3. demo2.m -- 主动噪声控制demo.
+4. demo3.m -- 算法性能比较demo.
+4. handel.wav, handel_echo.wav -- 原始音频和回声音频.
