@@ -1,60 +1,59 @@
-ï»¿% ------------------------------------------------------------------------ 
+% ------------------------------------------------------------------------ 
 %  Copyright (C)
 %  LiXirong - Wuhan University, China
 % 
 %  LiXirong <634602068@qq.com> or <lixirong@whu.edu.cn>
-%  2018.10.15
+%  2018.12.21
 % ------------------------------------------------------------------------
-% demo3.m - è‡ªé€‚åº”æ»¤æ³¢ç®—æ³•æ€§èƒ½æ¯”è¾ƒ
-% Including LMSã€NLMSã€RLS algorithm
-% Includingï¼š
-%     1ã€ä¸åŒæ­¥é•¿çš„æ»¤æ³¢å™¨å‚æ•°æ›´æ–°æ›²çº¿å¯¹æ¯”
-%     2ã€ç›¸åŒæ­¥é•¿çš„LMSç®—æ³•å’ŒNLMSç®—æ³•æ»¤æ³¢å™¨æƒé‡æ›´æ–°æ›²çº¿å¯¹æ¯”
-% Parametersï¼š
-%     x     ï¼š input signal      è¾“å…¥ä¿¡å·
-%     d     ï¼š reference signal  å‚è€ƒä¿¡å·
-%     y     ï¼š output signal     è¾“å‡ºä¿¡å·
-%     e     ï¼š error signal      è¯¯å·®ä¿¡å·
-%     mu    ï¼š LMS stepsize      LMSç®—æ³•æ­¥é•¿
-%     mu2   ï¼š NLMS stepsize     NLMSç®—æ³•æ­¥é•¿
-%     a     ï¼š NLMS bias         NLMSç®—æ³•åç½®å‚æ•°
-%     lamda ï¼š RLS weight        RLSç®—æ³•æƒé‡
+% demo3.m - ×ÔÊÊÓ¦ÂË²¨Ëã·¨ĞÔÄÜ±È½Ï
+% Including LMS¡¢NLMS¡¢RLS algorithm
+% Including£º
+%     1¡¢²»Í¬²½³¤µÄÂË²¨Æ÷²ÎÊı¸üĞÂÇúÏß¶Ô±È
+%     2¡¢ÏàÍ¬²½³¤µÄLMSËã·¨ºÍNLMSËã·¨ÂË²¨Æ÷È¨ÖØ¸üĞÂÇúÏß¶Ô±È
+% Parameters£º
+%     x     £º input signal      ÊäÈëĞÅºÅ
+%     d     £º reference signal  ²Î¿¼ĞÅºÅ
+%     y     £º output signal     Êä³öĞÅºÅ
+%     e     £º error signal      Îó²îĞÅºÅ
+%     mu    £º LMS stepsize      LMSËã·¨²½³¤
+%     mu2   £º NLMS stepsize     NLMSËã·¨²½³¤
+%     a     £º NLMS bias         NLMSËã·¨Æ«ÖÃ²ÎÊı
+%     lamda £º RLS weight        RLSËã·¨È¨ÖØ
 %
 % ------------------------------------------------------------------------
 close all;clear;clc;
 
-%% audio + single frequency noise ï¼ˆéŸ³é¢‘+å•é¢‘å™ªå£°ï¼‰
+%% audio + single frequency noise £¨ÒôÆµ+µ¥ÆµÔëÉù£©
 % [d,fs] = audioread('handel.wav');
-% d = d';
 % n = length(d);
 % T = n/fs;
 % t = 0:1/fs:T-1/fs;
-% 
-% noise = cos(2*pi*t*700);
+% noise = cos(2*pi*t*700)';
 % x = d + noise;
-%% single frequency signal + white noise ï¼ˆå•é¢‘+ç™½å™ªå£°ï¼‰
-fs = 16000;
-t = 0:1/fs:10;
-noise = wgn(length(t),1,-20)';
-d = noise;
-x = noise + cos(2*pi*t*200);
 
-%% LMS\NLMS\RLSæ€§èƒ½æ¯”è¾ƒ
+%% single frequency signal + white noise £¨µ¥Æµ+°×ÔëÉù£©
+fs = 8000;
+t = 0:1/fs:2;
+noise = wgn(length(t),1,-20);
+d = cos(2*pi*t*723)' + sin(2*pi*t*456)';
+x = noise + d;
 
-% set parameters (è®¾ç½®å‚æ•°)
-mu =  [0.001 0.005 0.01];
-mu2 = [0.01 0.05 0.1];
-a = 0.001;
-lamda = [0.8 0.5 0.1 0.05];
-M = 80;
+%% LMS\NLMS\RLSĞÔÄÜ±È½Ï
 
-% ç”»å‡ºæ»¤æ³¢å™¨æœ€åä¸€ä¸ªå‚æ•°çš„å˜åŒ–æ›²çº¿
+% set parameters (ÉèÖÃ²ÎÊı)
+mu =  [0.0005 0.001 0.005 0.01];
+mu2 = [0.005 0.01 0.05 0.1];
+a = 0.01;
+lamda = [1 0.9999 0.999 0.99];
+M = 20;
+
+% »­³öÂË²¨Æ÷×îºóÒ»¸ö²ÎÊıµÄ±ä»¯ÇúÏß
 figure(1);
 for i = 1:length(mu)
     [e1, ~, w1] = myLMS(d, x, mu(i), M);
     c1(i) = {['\mu = ',num2str(mu(i))]};
     subplot(2,1,1)
-    plot(w1(M,:)','LineWidth', 3)
+    plot(w1(M,:)','LineWidth', 1)
     hold on
     subplot(2,1,2)
     plot(e1)
@@ -62,17 +61,17 @@ for i = 1:length(mu)
 end
 subplot(2,1,1)
 legend(c1)
-title('ä¸åŒæ­¥é•¿çš„LMSç®—æ³•æ»¤æ³¢å™¨å‚æ•°æ”¶æ•›æƒ…å†µ')
+title('²»Í¬²½³¤µÄLMSËã·¨ÂË²¨Æ÷²ÎÊıÊÕÁ²Çé¿ö,M=20')
 subplot(2,1,2)
 legend(c1)
-title('ä¸åŒæ­¥é•¿çš„LMSç®—æ³•è¯¯å·®æ”¶æ•›æƒ…å†µ')
+title('²»Í¬²½³¤µÄLMSËã·¨Îó²îÊÕÁ²Çé¿ö,M=20')
 
 figure(2) 
 for i = 1:length(mu2)
     [e2, ~, w2] = myNLMS(d, x,mu2(i), M, a);
     c2(i) = {['\mu = ',num2str(mu2(i))]};
     subplot(2,1,1)
-    plot(w2(M,:)','LineWidth', 3)
+    plot(w2(M,:)','LineWidth', 1)
     hold on
     subplot(2,1,2)
     plot(e2)
@@ -80,17 +79,17 @@ for i = 1:length(mu2)
 end
 subplot(2,1,1)
 legend(c2)
-title('ä¸åŒæ­¥é•¿çš„NLMSç®—æ³•æ»¤æ³¢å™¨å‚æ•°æ”¶æ•›æƒ…å†µ')
+title('²»Í¬²½³¤µÄNLMSËã·¨ÂË²¨Æ÷²ÎÊıÊÕÁ²Çé¿ö,M=20')
 subplot(2,1,2)
 legend(c2)
-title('ä¸åŒæ­¥é•¿çš„NLMSç®—æ³•è¯¯å·®æ”¶æ•›æƒ…å†µ')
+title('²»Í¬²½³¤µÄNLMSËã·¨Îó²îÊÕÁ²Çé¿ö,M=20')
 
 figure(3)
 for i = 1:length(lamda)
     [e3, ~, w3] = myRLS(d, x,lamda(i),M);
     c3(i) = {['\lambda = ',num2str(lamda(i))]};
     subplot(2,1,1)
-    plot(w3(M,:)','LineWidth', 3)
+    plot(w3(M,:)','LineWidth', 1)
     hold on
     subplot(2,1,2)
     plot(e3)
@@ -98,28 +97,26 @@ for i = 1:length(lamda)
 end
 subplot(2,1,1)
 legend(c3)
-title('ä¸åŒæƒé‡çš„RLSç®—æ³•æ»¤æ³¢å™¨å‚æ•°æ”¶æ•›æƒ…å†µ')
+title('²»Í¬È¨ÖØµÄRLSËã·¨ÂË²¨Æ÷²ÎÊıÊÕÁ²Çé¿ö,M=20')
 subplot(2,1,2)
 legend(c3)
-title('ä¸åŒæƒé‡çš„RLSç®—æ³•è¯¯å·®æ”¶æ•›æƒ…å†µ')
+title('²»Í¬È¨ÖØµÄRLSËã·¨Îó²îÊÕÁ²Çé¿ö,M=20')
 
 figure(4)
-[e1, ~, w1] = myLMS(d, x, 0.01, M);
-[e2, ~, w2] = myNLMS(d, x, 0.1, M, a);
-[e3, ~, w3] = myRLS(d, x, 0.1,M);
+[e1, ~, w1] = myLMS(d, x, 0.001, M);
+[e2, ~, w2] = myNLMS(d, x, 0.01, M, a);
+[e3, ~, w3] = myRLS(d, x, 0.9999,M);
 subplot(2,1,1)
-plot(w2(M,:)','LineWidth', 3);
+plot(w2(M,:)','LineWidth', 1);
 hold on
-plot(w1(M,:)','LineWidth', 3);
-plot(w3(M,:)','LineWidth', 3);
+plot(w1(M,:)','LineWidth', 1);
+plot(w3(M,:)','LineWidth', 1);
 legend({'NLMS','LMS','RLS'})
-title('æ»¤æ³¢å™¨å‚æ•°æ”¶æ•›æƒ…å†µå¯¹æ¯”ï¼š\mu1 = 0.01, \mu2 = 0.1, \lambda = 0.1')
+title('ÂË²¨Æ÷²ÎÊıÊÕÁ²Çé¿ö¶Ô±È£º\mu1 = 0.001, \mu2 = 0.01, \lambda = 0.9999,M=20')
 subplot(2,1,2)
 plot(e2);
 hold on
 plot(e1);
 plot(e3);
 legend({'NLMS','LMS','RLS'})
-title('è¯¯å·®æ”¶æ•›æƒ…å†µå¯¹æ¯”ï¼š\mu1 = 0.01, \mu2 = 0.1,\lambda = 0.1')
-
-% figure(5)
+title('Îó²îÊÕÁ²Çé¿ö¶Ô±È£º\mu1 = 0.001, \mu2 = 0.01,\lambda = 0.9999,M=20')

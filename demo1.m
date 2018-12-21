@@ -1,79 +1,94 @@
-ï»¿% ------------------------------------------------------------------------ 
+% ------------------------------------------------------------------------ 
 %  Copyright (C)
 %  LiXirong - Wuhan University, China
 % 
 %  LiXirong <634602068@qq.com> or <lixirong@whu.edu.cn>
-%  2018.10.15
+%  2018.12.21
 % ------------------------------------------------------------------------
 %
-% demo1.m - adaptive filter demoï¼ˆè‡ªé€‚åº”æ»¤æ³¢ç®—æ³•åº”ç”¨demoï¼‰
-% Including LMSã€NLMSã€RLS algorithm
-% Includingï¼š
-%     1ã€echo cancellation éŸ³é¢‘å›å£°æ¶ˆé™¤
-%     2ã€audio + white noise éŸ³é¢‘ç™½å™ªå£°æ¶ˆé™¤
-%     3ã€audio + single frequency noise éŸ³é¢‘+å•é¢‘å™ªå£°æ¶ˆé™¤
-%     4ã€single frequency signal + white noise å•é¢‘ä¿¡å·+ç™½å™ªå£°æ¶ˆé™¤
-%     5ã€multi-frequency signal + single frequency signal noise å¤šé¢‘ä¿¡å·+å•é¢‘å£°æ¶ˆé™¤
-% Parametersï¼š
-%     x     ï¼š input signal      è¾“å…¥ä¿¡å·
-%     d     ï¼š reference signal  å‚è€ƒä¿¡å·
-%     y     ï¼š output signal     è¾“å‡ºä¿¡å·
-%     e     ï¼š error signal      è¯¯å·®ä¿¡å·
-%     mu    ï¼š LMS stepsize      LMSç®—æ³•æ­¥é•¿
-%     mu2   ï¼š NLMS stepsize     NLMSç®—æ³•æ­¥é•¿
-%     a     ï¼š NLMS bias         NLMSç®—æ³•åç½®å‚æ•°
-%     lamda ï¼š RLS weight        RLSç®—æ³•æƒé‡
+% demo1.m - adaptive filter demo£¨×ÔÊÊÓ¦ÂË²¨Ëã·¨Ó¦ÓÃdemo£©
+% Including LMS¡¢NLMS¡¢RLS algorithm
+% Including£º
+%     1¡¢echo cancellation ÒôÆµ»ØÉùÏû³ı
+%     2¡¢audio + white noise ÒôÆµ°×ÔëÉùÏû³ı
+%     3¡¢audio + single frequency noise ÒôÆµ+µ¥ÆµÔëÉùÏû³ı
+%     4¡¢single frequency signal + white noise µ¥ÆµĞÅºÅ+°×ÔëÉùÏû³ı
+%     5¡¢multi-frequency signal + single frequency signal noise ¶àÆµĞÅºÅ+µ¥ÆµÉùÏû³ı
+% Parameters£º
+%     x     £º input signal      ÊäÈëĞÅºÅ
+%     d     £º reference signal  ²Î¿¼ĞÅºÅ
+%     y     £º output signal     Êä³öĞÅºÅ
+%     e     £º error signal      Îó²îĞÅºÅ
+%     mu    £º LMS stepsize      LMSËã·¨²½³¤
+%     mu2   £º NLMS stepsize     NLMSËã·¨²½³¤
+%     a     £º NLMS bias         NLMSËã·¨Æ«ÖÃ²ÎÊı
+%     lamda £º RLS weight        RLSËã·¨È¨ÖØ
 %
 % ------------------------------------------------------------------------
 
 close all;clear;clc;
 
-%% 1ã€echo cancellation (éŸ³é¢‘å›å£°)
+%% 1¡¢echo cancellation (ÒôÆµ»ØÉù)
 % [d, fs] = audioread('handel.wav');
 % x = audioread('handel_echo.wav');
-% d = d';
-% x = x';
+% mu =  0.05;
+% mu2 = 0.05;
+% a = 0.1;
+% lamda = 0.99;
+% M = 40;
 
-%% 2ã€audio + white noise (éŸ³é¢‘+ç™½å™ªå£°)
+%% 2¡¢audio + white noise (ÒôÆµ+°×ÔëÉù)
 % [d,fs] = audioread('handel.wav');
-% d = d';
 % n = length(d);
-% noise = 5 * wgn(n, 1, -20)';
+% noise =  wgn(1, n, -20)';
 % x = d + noise;
+% mu =  0.001;
+% mu2 = 0.1;
+% a = 0.01;
+% lamda = 0.99;
+% M = 80;
 
-%% 3ã€audio + single frequency noise (éŸ³é¢‘+å•é¢‘å™ªå£°)
-% [d,fs] = audioread('handel.wav');
-% d = d';
+%% 3¡¢audio + single frequency noise (ÒôÆµ+µ¥ÆµÔëÉù)
+% [d, fs] = audioread('handel.wav');
 % n = length(d);
-% 
-% noise = cos(2*pi*t*700);
-% x = d + noise;
 % T = n/fs;
 % t = 0:1/fs:T-1/fs;
+% noise = cos(2*pi*t*370)';
+% x = d + noise;
+% 
+% mu =  0.005;
+% mu2 = 0.05;
+% a = 0.1;
+% lamda = 0.9999;
+% M = 40;
 
-%% 4ã€single frequency signal + white noise (å•é¢‘+ç™½å™ªå£°)
-fs = 16000;
-t = 0:1/fs:2;
-noise = wgn(length(t),1,-20)';
-d = 0.5*cos(2*pi*t*200);
-x = noise + cos(2*pi*t*200);  
+%% 4¡¢single frequency signal + white noise (µ¥Æµ+°×ÔëÉù)
+fs = 8000;
+t = 0:1/fs:5;
+noise = wgn(1, length(t),-20)';
+d = cos(2*pi*t*261.625)';
+x = noise + cos(2*pi*t*261.625)';  
 
-%% 5ã€multi-frequency signal + single frequency signal noise (å¤šé¢‘+å•é¢‘å™ªå£°)
-% fs = 16000;
-% t = 0:1/fs:1;
-% d = cos(2*pi*t*200);
-% x = cos(2*pi*t*100) + d;
-
-%% LMS\NLMS\RLS performance (LMS\NLMS\RLSæ€§èƒ½æ¯”è¾ƒ)
-
-% set parameters (è®¾ç½®å‚æ•°)
-mu =  0.001;
+mu =  0.0001;
 mu2 = 0.001;
-a = 0.01;
-lamda = 0.01;
-M = 80;
+a = 0.1;
+lamda = 0.999;
+M = 40;
 
-% run algorithm (è¿è¡Œç®—æ³•å¹¶è®¡ç®—æ—¶é—´)
+%% 5¡¢multi-frequency signal + single frequency signal noise (¶àÆµ+µ¥ÆµÔëÉù)
+% fs = 16000;
+% t = 0:1/fs:4;
+% d = cos(2*pi*t*200)';
+% x = cos(2*pi*t*100)' + d;
+% mu =  0.01;
+% mu2 = 0.1;
+% a = 0.1;
+% lamda = 0.9999;
+% M = 50;
+
+%% LMS\NLMS\RLS performance (LMS\NLMS\RLSĞÔÄÜ±È½Ï)
+
+% run algorithm (ÔËĞĞËã·¨²¢¼ÆËãÊ±¼ä)
 tic
 [e1, y1, w1] = myLMS(d, x, mu, M);
 toc
@@ -84,29 +99,37 @@ tic
 [e3, y3, w3] = myRLS(d, x,lamda,M);
 toc
 
-% ç”»å‡ºè¾“å…¥ä¿¡å·ã€å‚è€ƒä¿¡å·ã€æ»¤æ³¢è¾“å‡ºã€è¯¯å·®
+% »­³öÊäÈëĞÅºÅ¡¢²Î¿¼ĞÅºÅ¡¢ÂË²¨Êä³ö¡¢Îó²î
 figure()
 subplot(4,2,1)
-plot(x);
-title('x');
+plot([1:length(x)]/fs,x);
+xlabel('time');
+title('x(n)');
 subplot(4,2,2)
-plot(d);
-title('d');
+plot([1:length(d)]/fs,d);
+xlabel('time');
+title('d(n)');
 subplot(4,2,3)
-plot(y1);
-title('LMS');
+plot([1:length(y1)]/fs,y1);
+xlabel('time');
+title('LMS y(n)');
 subplot(4,2,5)
-plot(y2);
-title('NLMS');
+plot([1:length(y2)]/fs,y2);
+xlabel('time');
+title('NLMS y(n)');
 subplot(4,2,7)
-plot(y3);
-title('RLS');
+plot([1:length(y3)]/fs,y3);
+xlabel('time');
+title('RLS y(n)');
 subplot(4,2,4)
-plot(e1);
-title('LMS error');
+plot([1:length(e1)]/fs,e1);
+xlabel('time');
+title('LMS e(n)');
 subplot(4,2,6)
-plot(e2);
-title('NLMS error');
+plot([1:length(e2)]/fs,e2);
+xlabel('time');
+title('NLMS e(n)');
 subplot(4,2,8)
-plot(e3);
-title('RLS error');
+plot([1:length(e3)]/fs,e3);
+xlabel('time');
+title('RLS e(n)');

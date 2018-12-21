@@ -1,4 +1,4 @@
-ï»¿% ------------------------------------------------------------------------ 
+% ------------------------------------------------------------------------ 
 %  Copyright (C)
 %  LiXirong - Wuhan University, China
 % 
@@ -10,10 +10,10 @@
 % Usage: [e, y, w] = myRLS(d, x, lamda, M)
 %
 % Inputs:
-% d  - the vector of desired signal samples of size Ns, å‚è€ƒä¿¡å·
-% x  - the vector of input signal samples of size Ns, è¾“å…¥ä¿¡å·
-% lamda - the weight parameter, æƒé‡
-% M  - the number of taps. æ»¤æ³¢å™¨é˜¶æ•°
+% d  - the vector of desired signal samples of size Ns, ²Î¿¼ĞÅºÅ
+% x  - the vector of input signal samples of size Ns, ÊäÈëĞÅºÅ
+% lamda - the weight parameter, È¨ÖØ
+% M  - the number of taps. ÂË²¨Æ÷½×Êı
 %
 % Outputs:
 % e - the output error vector of size Ns
@@ -24,8 +24,12 @@
 function [e, y, w] = myRLS(d, x,lamda,M)
 
 Ns = length(d);
+if (Ns <= M)  
+    print('error: ĞÅºÅ³¤¶ÈĞ¡ÓÚÂË²¨Æ÷½×Êı£¡');
+    return; 
+end
 if (Ns ~= length(x))
-    print('error: è¾“å…¥ä¿¡å·å’Œå‚è€ƒä¿¡å·é•¿åº¦ä¸åŒï¼');
+    print('error: ÊäÈëĞÅºÅºÍ²Î¿¼ĞÅºÅ³¤¶È²»Í¬£¡');
     return;
 end
 
@@ -34,15 +38,16 @@ I = eye(M);
 a = 0.01;
 p = a * I;
 
-x = [zeros(1, M-1), x]; %åœ¨è¾“å…¥ä¿¡å·xå‰è¡¥ä¸ŠM-1ä¸ª0ï¼Œä½¿è¾“å‡ºyä¸è¾“å…¥å…·æœ‰ç›¸åŒé•¿åº¦
-w1 = zeros(1, M);
-y = zeros(1, Ns);
-e = zeros(1, Ns);
+x = x; %ÔÚÊäÈëĞÅºÅxÇ°²¹ÉÏM-1¸ö0£¬Ê¹Êä³öyÓëÊäÈë¾ßÓĞÏàÍ¬³¤¶È
+w1 = zeros(M,1);
+y = zeros(Ns, 1);
+e = zeros(Ns, 1);
+xx = zeros(M,1);
 
 for n = 1:Ns
-    xx = x(n:1:n+M-1);
-    k = (p * xx')' ./ (lamda + xx * p * xx');
-    y(n) = w1 * xx';
+    xx = [x(n); xx(1:M-1)];
+    k = (p * xx) ./ (lamda + xx' * p * xx);
+    y(n) = xx'*w1;
     e(n) = d(n) - y(n);
     w1 = w1 + k * e(n);
     p = (p - k * xx' * p) ./ lamda;

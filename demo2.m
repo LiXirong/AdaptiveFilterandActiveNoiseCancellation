@@ -1,55 +1,65 @@
-ï»¿% ------------------------------------------------------------------------ 
+% ------------------------------------------------------------------------ 
 %  Copyright (C)
 %  LiXirong - Wuhan University, China
 % 
 %  LiXirong <634602068@qq.com> or <lixirong@whu.edu.cn>
-%  2018.10.15
+%  2018.12.21
 % ------------------------------------------------------------------------
 %
-% demo2.m - ANC demoï¼ˆä½¿ç”¨è‡ªé€‚åº”æ»¤æ³¢ç®—æ³•çš„ANCdemoï¼‰
-% Including LMSã€NLMSã€RLS algorithm
-% Includingï¼š
-%     1ã€audio + white noise éŸ³é¢‘ç™½å™ªå£°æ¶ˆé™¤
-%     2ã€single frequency signal + white noise å•é¢‘ç™½å™ªå£°æ¶ˆé™¤
-% Parametersï¼š
-%     x     ï¼š input signal      è¾“å…¥ä¿¡å·
-%     d     ï¼š reference signal  å‚è€ƒä¿¡å·
-%     y     ï¼š output signal     è¾“å‡ºä¿¡å·
-%     e     ï¼š error signal      è¯¯å·®ä¿¡å·
-%     mu    ï¼š LMS stepsize      LMSç®—æ³•æ­¥é•¿
-%     mu2   ï¼š NLMS stepsize     NLMSç®—æ³•æ­¥é•¿
-%     a     ï¼š NLMS bias         NLMSç®—æ³•åç½®å‚æ•°
-%     lamda ï¼š RLS weight        RLSç®—æ³•æƒé‡
+% demo2.m - ANC demo£¨Ê¹ÓÃ×ÔÊÊÓ¦ÂË²¨Ëã·¨µÄANCdemo£©
+% Including LMS¡¢NLMS¡¢RLS algorithm
+% Including£º
+%     1¡¢audio + white noise ÒôÆµ°×ÔëÉùÏû³ı
+%     2¡¢single frequency signal + white noise µ¥Æµ°×ÔëÉùÏû³ı
+% Parameters£º
+%     x     £º input signal      ÊäÈëĞÅºÅ
+%     d     £º reference signal  ²Î¿¼ĞÅºÅ
+%     y     £º output signal     Êä³öĞÅºÅ
+%     e     £º error signal      Îó²îĞÅºÅ
+%     mu    £º LMS stepsize      LMSËã·¨²½³¤
+%     mu2   £º NLMS stepsize     NLMSËã·¨²½³¤
+%     a     £º NLMS bias         NLMSËã·¨Æ«ÖÃ²ÎÊı
+%     lamda £º RLS weight        RLSËã·¨È¨ÖØ
+%
+%  System£º
+%    signal+noise_____________d(n)___________
+%                                                                         +¡ı
+%    noise¡¯¡ªx(n)¡ª¡¾filter¡¿¡ª¡ªy(n)¡ª - ¡ª-O¡ª¡ªe(n)¡ª¡ª
+%                                     ¡ü_____________________|
 %
 % ------------------------------------------------------------------------
 
 close all;clear;clc;
 
-%% 1ã€audio + white noiseï¼ˆéŸ³é¢‘+ç™½å™ªå£°ï¼‰
-[d,fs] = audioread('handel.wav');
-d = d';
-n = length(d);
-noise = wgn(n, 1, -20)';
-x = d + noise;
-d = noise;
-
-%% 2ã€single frequency signal + white noiseï¼ˆå•é¢‘+ç™½å™ªå£°ï¼‰
-% fs = 16000;
-% t = 0:1/fs:3;
-% noise = wgn(length(t),1,-10)';
-% x = noise + cos(2*pi*t*200);
-% d = noise;
-
-%% LMS\NLMS\RLS performanceï¼ˆLMS\NLMS\RLSæ€§èƒ½æ¯”è¾ƒï¼‰
-
-% set parameters (è®¾ç½®å‚æ•°)
-mu =  0.01;
-mu2 = 0.01;
+%% 1¡¢audio + white noise£¨ÒôÆµ+°×ÔëÉù£©
+[signal,fs] = audioread('handel.wav');
+noise = wgn(length(signal), 1, -20);
+d = signal + noise;
+x = sin(1./(1+exp(-noise)));
+mu =  0.1;
+mu2 = 0.5;
 a = 0.01;
-lamda = 0.1;
-M = 80;
+lamda = 0.999;
+M = 20;
 
-% run algorithm (è¿è¡Œç®—æ³•)
+%% 2¡¢single frequency signal + white noise£¨µ¥Æµ+°×ÔëÉù£©
+% fs = 8000;
+% t = 0:1/fs:4;
+% signal = cos(2*pi*t*20)';
+% noise = wgn(1,length(t),-20)';
+% d = noise + signal;
+% x = sin(1./(1+exp(-noise)));
+% 
+% mu =  0.1;
+% mu2 = 0.8;
+% a = 0.01;
+% lamda = 0.9999;
+% M = 20;
+
+%% LMS\NLMS\RLS performance£¨LMS\NLMS\RLSĞÔÄÜ±È½Ï£©
+
+
+% run algorithm (ÔËĞĞËã·¨)
 tic
 [e1, y1, w1] = myLMS(d, x, mu, M);
 toc
@@ -60,46 +70,54 @@ tic
 [e3, y3, w3] = myRLS(d, x,lamda,M);
 toc
 
-% ç”»å‡ºè¾“å…¥ä¿¡å·ã€å‚è€ƒä¿¡å·ã€æ»¤æ³¢è¾“å‡ºã€è¯¯å·®
+% »­³öÊäÈëĞÅºÅ¡¢²Î¿¼ĞÅºÅ¡¢ÂË²¨Êä³ö¡¢Îó²î
 figure()
 subplot(4,2,1)
-plot(x);
-title('x');
+plot([1:length(x)]/fs,x);
+xlabel('time');
+title('x(n)');
 subplot(4,2,2)
-plot(d);
-title('d');
+plot([1:length(d)]/fs,d);
+xlabel('time');
+title('d(n)');
 subplot(4,2,3)
-plot(y1);
-title('LMS');
+plot([1:length(y1)]/fs,y1);
+xlabel('time');
+title('LMS y(n)');
 subplot(4,2,5)
-plot(y2);
-title('NLMS');
+plot([1:length(y2)]/fs,y2);
+xlabel('time');
+title('NLMS y(n)');
 subplot(4,2,7)
-plot(y3);
-title('RLS');
+plot([1:length(y3)]/fs,y3);
+xlabel('time');
+title('RLS y(n)');
 subplot(4,2,4)
-plot(e1);
-title('LMS error');
+plot([1:length(e1)]/fs,e1);
+xlabel('time');
+title('LMS e(n)');
 subplot(4,2,6)
-plot(e2);
-title('NLMS error');
+plot([1:length(e2)]/fs,e2);
+xlabel('time');
+title('NLMS e(n)');
 subplot(4,2,8)
-plot(e3);
-title('RLS error');
+plot([1:length(e3)]/fs,e3);
+xlabel('time');
+title('RLS e(n)');
 
-% ç”»å‡ºå‚è€ƒä¿¡å·ä¸æ»¤æ³¢è¾“å‡ºçš„å·®å€¼(ANCè¾“å‡ºä¿¡å·)
+% »­³ö²Î¿¼ĞÅºÅÓëÂË²¨Êä³öµÄ²îÖµ(ANCÊä³öĞÅºÅ)
 figure()
 subplot(3,1,1)
-plot(x-y1)
-title('LMS ANCè¾“å‡º')
+plot(e1)
+title('LMS ANCÊä³ö')
 subplot(3,1,2)
-plot(x-y2)
-title('NLMS ANCè¾“å‡º')
+plot(e2)
+title('NLMS ANCÊä³ö')
 subplot(3,1,3)
-plot(x-y3)
-title('RLS ANCè¾“å‡º')
+plot(e3)
+title('RLS ANCÊä³ö')
 
-% æ¯”è¾ƒç¨³å®šåçš„ä¿¡å™ªæ¯”
+% ±È½ÏÎÈ¶¨ºóµÄĞÅÔë±È
 % xx1 = clearspeech(length(x)-3000:length(x));
 % ee1 = e1(length(x)-3000:length(x));
 % ee2 = e2(length(x)-3000:length(x));
@@ -111,5 +129,5 @@ title('RLS ANCè¾“å‡º')
 % SNR2 = snr(xx1,ee2)
 % SNR3 = snr(xx1,ee3)
 
-%% è¯•å¬RLS ANCçš„è¾“å‡ºç»“æœï¼ˆRLSæ•ˆæœæœ€å¥½ï¼‰
+%% ÊÔÌıRLS ANCµÄÊä³ö½á¹û£¨RLSĞ§¹û×îºÃ£©
 % sound(x-y3,fs);
