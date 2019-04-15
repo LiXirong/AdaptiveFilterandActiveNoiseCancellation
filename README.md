@@ -1,5 +1,7 @@
 # Adaptive-Filter-and-Active-Noise-Cancellation
 Adaptive Filter and Active Noise Cancellation —— LMS、NLMS、RLS
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 ## Including:
 1. myLMS.m, myNLMS.m, myRLS.m -- LMS, NLMS, RLS algorithm.
 2. demo1.m -- Adaptive filter demo.
