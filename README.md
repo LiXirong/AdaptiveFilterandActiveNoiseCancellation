@@ -1,4 +1,4 @@
-# Adaptive-Filter-and-Active-Noise-Cancellation
+# Adaptive Filter and Active Noise Cancellation
 Adaptive Filter and Active Noise Cancellation —— LMS、NLMS、RLS Implementation in Matlab.
 
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
